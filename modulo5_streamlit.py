@@ -4,7 +4,7 @@ import streamlit as st
 
 # Cargar el dataset de preguntas desde un archivo JSON
 try:
-    with open('modulo5.json', 'r', encoding='utf-8') as f:  # Ruta relativa
+    with open('modulo5.json', 'r', encoding='utf-8') as f:  # Ruta relativa al JSON
         trivia_data = json.load(f)
 except FileNotFoundError:
     st.error("Error: No se encontró el archivo 'modulo5.json'. Asegúrate de que está en el mismo directorio que este script.")
@@ -13,7 +13,6 @@ except json.JSONDecodeError:
     st.error("Error: El archivo 'modulo5.json' tiene un formato inválido.")
     st.stop()
 
-
 # Verificar la estructura del JSON cargado
 if not isinstance(trivia_data, list) or any('tag' not in category or 'qa' not in category for category in trivia_data):
     st.error("Error: El archivo JSON debe ser una lista de categorías con 'tag' y 'qa'. Revisa el formato.")
@@ -21,7 +20,7 @@ if not isinstance(trivia_data, list) or any('tag' not in category or 'qa' not in
 
 # Título de la aplicación
 st.title("Trivial Jedi")
-st.write("Te haré preguntas de diferentes categorías. Selecciona la opción correcta. ¡Buena suerte!")
+st.write("Te haré preguntas de diferentes categorías. Selecciona la opción correcta y usa el botón 'Siguiente' para continuar.")
 
 # Estado inicial del juego (usando Streamlit's session state)
 if 'score' not in st.session_state:
@@ -52,7 +51,7 @@ correct_answer = question_item['correct'].lower()
 # Streamlit crea botones para las opciones
 user_choice = st.radio("Selecciona una opción:", options, key="options")
 
-# Comprobar la respuesta al presionar un botón
+# Botón para responder
 if st.button("Responder"):
     st.session_state.total_questions += 1
     if user_choice.lower().startswith(correct_answer):  # Compara la respuesta
@@ -61,8 +60,8 @@ if st.button("Responder"):
     else:
         st.error(f"Incorrecto. La respuesta correcta era: {correct_answer.upper()} 😢")
 
-    # Mostrar puntuación
     st.write(f"Puntuación: {st.session_state.score}/{st.session_state.total_questions}")
 
-    # Cargar una nueva pregunta
+# Botón para pasar a la siguiente pregunta
+if st.button("Siguiente"):
     load_question()
