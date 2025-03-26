@@ -20,7 +20,7 @@ if not isinstance(trivia_data, list) or any('tag' not in category or 'qa' not in
 
 # Título de la aplicación
 st.title("Trivial Jedi")
-st.write("Te haré preguntas de diferentes categorías. Selecciona la opción correcta y usa el botón 'Siguiente' para continuar.")
+st.write("Te haré preguntas de diferentes categorías. Responde correctamente y usa el botón 'Siguiente' para continuar.")
 
 # Estado inicial del juego (usando Streamlit's session state)
 if 'score' not in st.session_state:
@@ -28,11 +28,13 @@ if 'score' not in st.session_state:
     st.session_state.total_questions = 0
     st.session_state.question_item = None
     st.session_state.category = None
+    st.session_state.answered = False  # Nuevo estado para controlar si la pregunta fue respondida
 
 # Función para cargar una nueva pregunta
 def load_question():
     st.session_state.category = random.choice(trivia_data)
     st.session_state.question_item = random.choice(st.session_state.category['qa'])
+    st.session_state.answered = False  # Resetear estado al cargar nueva pregunta
 
 # Si no hay pregunta cargada, cargar una
 if st.session_state.question_item is None:
@@ -48,11 +50,12 @@ st.write(f"Pregunta: {question_item['pattern']}")
 options = question_item['options']
 correct_answer = question_item['correct'].lower()
 
-# Streamlit crea botones para las opciones
+# Streamlit crea un widget para las opciones
 user_choice = st.radio("Selecciona una opción:", options, key="options")
 
 # Botón para responder
-if st.button("Responder"):
+if st.button("Responder") and not st.session_state.answered:
+    st.session_state.answered = True  # Marcar como respondida
     st.session_state.total_questions += 1
     if user_choice.lower().startswith(correct_answer):  # Compara la respuesta
         st.success("¡Correcto! 🎉")
@@ -63,5 +66,6 @@ if st.button("Responder"):
     st.write(f"Puntuación: {st.session_state.score}/{st.session_state.total_questions}")
 
 # Botón para pasar a la siguiente pregunta
-if st.button("Siguiente"):
-    load_question()
+if st.session_state.answered:
+    if st.button("Siguiente"):
+        load_question()
